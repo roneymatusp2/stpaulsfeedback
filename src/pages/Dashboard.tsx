@@ -3,19 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/dashboard/AppSidebar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { CreateObservationCard } from "@/components/dashboard/CreateObservationCard";
+import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { teachersApi, observationTypesApi, keyStagesApi, subjectsApi, type Teacher, type ObservationType, type KeyStage, type Subject } from "@/lib/supabase";
 import { toast } from 'sonner';
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, Plus, Eye, Users, LayoutDashboard, Search, X, Clock, User, BookOpen, GraduationCap, FileText, Trash2 } from "lucide-react";
-import { format } from "date-fns";
+import { Users, BookOpen, Target, Eye, LayoutDashboard, Search, X, Clock, User, GraduationCap, FileText, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import stPaulsLogo from "@/assets/st-pauls-logo.png";
 import MrBishopFab from "@/components/teacher/MrBishopFab";
+import { learningWalkApi } from "@/lib/supabase";
 
 // Data will be loaded from Supabase
 
@@ -246,6 +245,21 @@ const Dashboard = () => {
     }
   };
 
+  const [aspects, setAspects] = useState<any[]>([]);
+  
+  useEffect(() => {
+    const loadAspects = async () => {
+      try {
+        const aspectsData = await learningWalkApi.getAspects();
+        setAspects(aspectsData);
+      } catch (error) {
+        console.error('Error loading learning walk aspects:', error);
+      }
+    };
+    
+    loadAspects();
+  }, []);
+
   // Load data from Supabase
   useEffect(() => {
     const loadData = async () => {
@@ -314,7 +328,7 @@ const Dashboard = () => {
     );
   }
 
-  return (
+export default function Dashboard() {
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
         <AppSidebar />
@@ -342,820 +356,56 @@ const Dashboard = () => {
                 </div>
               </div>
               
-              {/* Modern Action Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                {/* Card 1: Create a new observation */}
-                <div 
-                  className="group cursor-pointer transform hover:scale-105 transition-all duration-500" 
-                  onClick={() => setIsFormExpanded(true)}
-                >
-                  <Card className="relative overflow-hidden border-0 shadow-xl hover:shadow-2xl bg-gradient-to-br from-red-500 to-pink-600 text-white transition-all duration-500">
-                    <CardContent className="p-8 relative">
-                      {/* Decorative elements */}
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
-                      <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
-                      
-                      <div className="relative z-10">
-                        <div className="h-16 w-16 bg-white/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                          <Plus className="h-8 w-8 text-white" />
-                        </div>
-                        <h3 className="text-xl font-bold mb-2">Create New Observation</h3>
-                        <p className="text-white/80 text-sm">Start a peer observation session</p>
-                        <div className="mt-4 flex items-center text-white/60">
-                          <div className="h-1 w-12 bg-white/30 rounded-full group-hover:w-16 transition-all duration-300"></div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Card 2: Observations made about you */}
-                <div className="group cursor-pointer transform hover:scale-105 transition-all duration-500">
-                  <Card className="relative overflow-hidden border-0 shadow-xl hover:shadow-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white transition-all duration-500">
-                    <CardContent className="p-8 relative">
-                      {/* Decorative elements */}
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
-                      <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
-                      
-                      <div className="relative z-10">
-                        <div className="h-16 w-16 bg-white/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                          <Eye className="h-8 w-8 text-white" />
-                        </div>
-                        <h3 className="text-xl font-bold mb-2">Your Feedback</h3>
-                        <p className="text-white/80 text-sm">View observations made about you</p>
-                        <div className="mt-4 flex items-center text-white/60">
-                          <div className="h-1 w-12 bg-white/30 rounded-full group-hover:w-16 transition-all duration-300"></div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Card 3: Observations created by you */}
-                <div className="group cursor-pointer transform hover:scale-105 transition-all duration-500">
-                  <Card className="relative overflow-hidden border-0 shadow-xl hover:shadow-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white transition-all duration-500">
-                    <CardContent className="p-8 relative">
-                      {/* Decorative elements */}
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
-                      <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
-                      
-                      <div className="relative z-10">
-                        <div className="h-16 w-16 bg-white/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                          <Users className="h-8 w-8 text-white" />
-                        </div>
-                        <h3 className="text-xl font-bold mb-2">Your Observations</h3>
-                        <p className="text-white/80 text-sm">Manage observations you've created</p>
-                        <div className="mt-4 flex items-center text-white/60">
-                          <div className="h-1 w-12 bg-white/30 rounded-full group-hover:w-16 transition-all duration-300"></div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
+              {/* Dashboard Cards */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <CreateObservationCard />
+                <DashboardStats />
               </div>
 
-              {/* Modern Form Card */}
-              {isFormExpanded && (
-                <Card className="w-full border-0 shadow-2xl bg-white/80 backdrop-blur-sm">
-                  <CardHeader className="bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-t-lg">
-                    <CardTitle className="flex items-center gap-3 text-xl">
-                      <div className="h-8 w-8 bg-white/20 rounded-lg flex items-center justify-center">
-                        <Plus className="h-5 w-5" />
-                      </div>
-                      Create New Observation
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-8">
-                    <div className="space-y-8">
-                      <Button 
-                        onClick={addObserver}
-                        className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300"
-                        size="lg"
-                      >
-                        <Plus className="mr-2 h-5 w-5" />
-                        Add Additional Observers
-                      </Button>
-                      
-                      {/* Additional Observers */}
-                      {additionalObservers.map((observer, index) => (
-                        <div key={index} className="space-y-2">
-                          <div className="flex gap-2 items-end">
-                            <div className="flex-1 space-y-2">
-                              {/* Enhanced Observer Search with Combobox */}
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    role="combobox"
-                                    className={cn(
-                                      "w-full justify-between",
-                                      !observer && "text-muted-foreground"
-                                    )}
-                                  >
-                                    <div className="flex items-center gap-2">
-                                      <Search className="h-4 w-4 text-slate-400" />
-                                      <span className="truncate">
-                                        {observer || "Type or select an observer..."}
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                      {observer && (
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            const newObservers = [...additionalObservers];
-                                            newObservers[index] = "";
-                                            setAdditionalObservers(newObservers);
-                                            updateAdditionalObserverSearch(index, "");
-                                          }}
-                                          className="h-4 w-4 text-slate-400 hover:text-slate-600"
-                                        >
-                                          <X className="h-3 w-3" />
-                                        </button>
-                                      )}
-                                      <svg
-                                        className="h-4 w-4 shrink-0 opacity-50"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                      >
-                                        <path d="m6 9 6 6 6-6" />
-                                      </svg>
-                                    </div>
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-full p-0" align="start">
-                                  <div className="border-b p-2">
-                                    <div className="relative">
-                                      <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-                                      <input
-                                        type="text"
-                                        placeholder="Search observers..."
-                                        value={additionalObserverSearches[index] || ""}
-                                        onChange={(e) => updateAdditionalObserverSearch(index, e.target.value)}
-                                        className="w-full pl-8 pr-3 py-2 text-sm border-0 focus:outline-none focus:ring-0"
-                                        autoFocus
-                                      />
-                                    </div>
-                                  </div>
-                                  <div className="max-h-60 overflow-y-auto">
-                                    {getFilteredTeachers(additionalObserverSearches[index] || "").length > 0 ? (
-                                      getFilteredTeachers(additionalObserverSearches[index] || "").map((teacher) => (
-                                        <button
-                                          key={teacher.id}
-                                          onClick={() => {
-                                            const newObservers = [...additionalObservers];
-                                            newObservers[index] = teacher.name;
-                                            setAdditionalObservers(newObservers);
-                                            updateAdditionalObserverSearch(index, teacher.name);
-                                          }}
-                                          className={cn(
-                                            "w-full px-3 py-2 text-left text-sm hover:bg-slate-100 flex items-center justify-between",
-                                            observer === teacher.name && "bg-blue-50 text-blue-600"
-                                          )}
-                                        >
-                                          <span>{teacher.name}</span>
-                                          {observer === teacher.name && (
-                                            <svg
-                                              className="h-4 w-4"
-                                              xmlns="http://www.w3.org/2000/svg"
-                                              viewBox="0 0 24 24"
-                                              fill="none"
-                                              stroke="currentColor"
-                                              strokeWidth="2"
-                                              strokeLinecap="round"
-                                              strokeLinejoin="round"
-                                            >
-                                              <polyline points="20,6 9,17 4,12" />
-                                            </svg>
-                                          )}
-                                        </button>
-                                      ))
-                                    ) : (
-                                      <div className="px-3 py-2 text-sm text-slate-500">
-                                        {additionalObserverSearches[index] ? "No teacher found" : "Start typing to search..."}
-                                      </div>
-                                    )}
-                                  </div>
-                                </PopoverContent>
-                              </Popover>
-                            </div>
-                            
-                            <Button 
-                              variant="outline" 
-                              size="icon"
-                              onClick={() => removeObserver(index)}
-                              className="shrink-0"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-
-                      <div className={`grid gap-6 ${selectedObservationType === "Senior School Learning Walk" ? "grid-cols-1 md:grid-cols-4" : "grid-cols-1 md:grid-cols-3"}`}>
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-slate-700 mb-3 block">
-                            Observation Type
-                          </label>
-                          <Select value={selectedObservationType} onValueChange={handleObservationTypeChange}>
-                            <SelectTrigger className={formErrors.observationType ? "border-red-500" : ""}>
-                              <SelectValue placeholder="Select Observation Type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {observationTypes.map((type) => (
-                                <SelectItem key={type.id} value={type.name}>
-                                  {type.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          {formErrors.observationType && (
-                            <p className="text-red-500 text-sm mt-1">{formErrors.observationType}</p>
-                          )}
-                        </div>
-
-                        <div className="space-y-2">
-                          <label className="text-sm font-semibold text-slate-700 mb-3 block">
-                            Who are you observing?
-                          </label>
-                          
-                          {/* Enhanced Teacher Search with Combobox */}
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  "w-full justify-between",
-                                  !selectedObservee && "text-muted-foreground",
-                                  formErrors.observee && "border-red-500"
-                                )}
-                                disabled={selectedObservationType === "Senior School Self Assessment"}
-                              >
-                                <div className="flex items-center gap-2">
-                                  <Search className="h-4 w-4 text-slate-400" />
-                                  <span className="truncate">
-                                    {selectedObservee || "Type or select a teacher..."}
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  {selectedObservee && (
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setSelectedObservee("");
-                                        setTeacherSearch("");
-                                      }}
-                                      className="h-4 w-4 text-slate-400 hover:text-slate-600"
-                                    >
-                                      <X className="h-3 w-3" />
-                                    </button>
-                                  )}
-                                  <svg
-                                    className="h-4 w-4 shrink-0 opacity-50"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  >
-                                    <path d="m6 9 6 6 6-6" />
-                                  </svg>
-                                </div>
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-full p-0" align="start">
-                              <div className="border-b p-2">
-                                <div className="relative">
-                                  <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-                                  <input
-                                    type="text"
-                                    placeholder="Search teachers..."
-                                    value={teacherSearch}
-                                    onChange={(e) => setTeacherSearch(e.target.value)}
-                                    className="w-full pl-8 pr-3 py-2 text-sm border-0 focus:outline-none focus:ring-0"
-                                    autoFocus
-                                  />
-                                </div>
-                              </div>
-                              <div className="max-h-60 overflow-y-auto">
-                                {getFilteredTeachers(teacherSearch).length > 0 ? (
-                                  getFilteredTeachers(teacherSearch).map((teacher) => (
-                                    <button
-                                      key={teacher.id}
-                                      onClick={() => {
-                                        setSelectedObservee(teacher.name);
-                                        setTeacherSearch(teacher.name);
-                                      }}
-                                      className={cn(
-                                        "w-full px-3 py-2 text-left text-sm hover:bg-slate-100 flex items-center justify-between",
-                                        selectedObservee === teacher.name && "bg-blue-50 text-blue-600"
-                                      )}
-                                    >
-                                      <span>{teacher.name}</span>
-                                      {selectedObservee === teacher.name && (
-                                        <svg
-                                          className="h-4 w-4"
-                                          xmlns="http://www.w3.org/2000/svg"
-                                          viewBox="0 0 24 24"
-                                          fill="none"
-                                          stroke="currentColor"
-                                          strokeWidth="2"
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                        >
-                                          <polyline points="20,6 9,17 4,12" />
-                                        </svg>
-                                      )}
-                                    </button>
-                                  ))
-                                ) : (
-                                  <div className="px-3 py-2 text-sm text-slate-500">
-                                    {teacherSearch ? "No teacher found" : "Start typing to search..."}
-                                  </div>
-                                )}
-                              </div>
-                            </PopoverContent>
-                          </Popover>
-                          {formErrors.observee && (
-                            <p className="text-red-500 text-sm mt-1">{formErrors.observee}</p>
-                          )}
-                        </div>
-
-                        {/* Subject field - hidden for Self Assessment */}
-                        {!observationTypeConfigs[selectedObservationType as keyof typeof observationTypeConfigs]?.hideSubject && (
-                          <div className="space-y-2">
-                            <label className="text-sm font-semibold text-slate-700 mb-3 block">
-                              Subject
-                            </label>
-                            <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                              <SelectTrigger className={formErrors.subject ? "border-red-500" : ""}>
-                                <SelectValue placeholder="Subject List" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {subjects.map((subject) => (
-                                  <SelectItem key={subject.id} value={subject.name}>
-                                    {subject.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            {formErrors.subject && (
-                              <p className="text-red-500 text-sm mt-1">{formErrors.subject}</p>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Choose Learning Aspect - only for Learning Walk */}
-                        {selectedObservationType === "Senior School Learning Walk" && (
-                          <div className="space-y-2">
-                            <label className="text-sm font-semibold text-slate-700 mb-3 block">
-                              Choose Learning Aspect
-                            </label>
-                            <Select value={selectedLearningAspect} onValueChange={setSelectedLearningAspect}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Choose Learning Aspect" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {learningWalkAspects.map((aspect) => (
-                                  <SelectItem key={aspect} value={aspect}>
-                                    {aspect}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-sm font-medium text-foreground mb-2 block">
-                            Select Key Stage/Class
-                          </label>
-                          <Select>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select Key Stage/Class" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {keyStages.map((stage) => (
-                                <SelectItem key={stage.id} value={stage.name}>
-                                  {stage.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div>
-                          <label className="text-sm font-medium text-foreground mb-2 block">
-                            Select Date
-                          </label>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="outline"
-                                className={cn(
-                                  "w-full justify-start text-left font-normal",
-                                  !date && "text-muted-foreground",
-                                  formErrors.date && "border-red-500"
-                                )}
-                              >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {date ? format(date, "PPP") : <span>Select Date</span>}
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar
-                                mode="single"
-                                selected={date}
-                                onSelect={setDate}
-                                initialFocus
-                                className="pointer-events-auto"
-                              />
-                            </PopoverContent>
-                          </Popover>
-                          {formErrors.date && (
-                            <p className="text-red-500 text-sm mt-1">{formErrors.date}</p>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex gap-4 pt-4">
-                        <Button 
-                          className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300" 
-                          size="lg"
-                          onClick={() => {
-                            if (selectedObservationType === "Senior School Self Assessment") {
-                              setShowSelfAssessmentOptions(true);
-                            } else if (selectedObservationType === "Senior School Learning Walk") {
-                              setShowLearningWalkOptions(true);
-                            } else {
-                              // Handle other observation types
-                              console.log("Creating observation:", {
-                                type: selectedObservationType,
-                                observee: selectedObservee,
-                                date
-                              });
-                            }
-                          }}
-                        >
-                          Create Observation
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="lg"
-                          className="border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
-                          onClick={() => setIsFormExpanded(false)}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Learning Walk Options */}
-              {showLearningWalkOptions && (
-                <Card className="w-full mt-6">
-                  <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
-                    <CardTitle className="flex items-center gap-2">
-                      <Eye className="h-5 w-5" />
-                      Learning Walk Configuration
-                    </CardTitle>
-                  </CardHeader>
+              {/* Quick Actions */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                <Card className="group hover:shadow-lg transition-all duration-300 border-0 shadow-md bg-white/80 backdrop-blur-sm">
                   <CardContent className="p-6">
-                    <div className="space-y-6">
-                      {/* Learning Aspect Selection */}
+                    <div className="flex items-center gap-4">
+                      <div className="h-12 w-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <Users className="h-6 w-6 text-white" />
+                      </div>
                       <div>
-                        <label className="text-sm font-semibold text-slate-700 mb-3 block">
-                          Choose Learning Aspect
-                        </label>
-                        <Select value={selectedLearningAspect} onValueChange={setSelectedLearningAspect}>
-                          <SelectTrigger className={formErrors.learningAspect ? "border-red-500" : ""}>
-                            <SelectValue placeholder="Choose Learning Aspect" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {learningWalkAspects.map((aspect) => (
-                              <SelectItem key={aspect} value={aspect}>
-                                {aspect}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        {formErrors.learningAspect && (
-                          <p className="text-red-500 text-sm mt-1">{formErrors.learningAspect}</p>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                          <label className="text-sm font-semibold text-slate-700 mb-3 block">
-                            Observation Type
-                          </label>
-                          <Select value={selectedObservationType} disabled>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                          </Select>
-                        </div>
-
-                        <div>
-                          <label className="text-sm font-semibold text-slate-700 mb-3 block">
-                            Teacher
-                          </label>
-                          <Select value={selectedObservee} disabled>
-                            <SelectTrigger className={formErrors.observee ? "border-red-500" : ""}>
-                              <SelectValue />
-                            </SelectTrigger>
-                          </Select>
-                          {formErrors.observee && (
-                            <p className="text-red-500 text-sm mt-1">{formErrors.observee}</p>
-                          )}
-                        </div>
-
-                        <div>
-                          <label className="text-sm font-semibold text-slate-700 mb-3 block">
-                            Subject
-                          </label>
-                          <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                            <SelectTrigger className={formErrors.subject ? "border-red-500" : ""}>
-                              <SelectValue placeholder="Select Subject" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {subjects.map((subject) => (
-                                <SelectItem key={subject.id} value={subject.name}>
-                                  {subject.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          {formErrors.subject && (
-                            <p className="text-red-500 text-sm mt-1">{formErrors.subject}</p>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-sm font-semibold text-slate-700 mb-3 block">
-                            Key Stage/Class
-                          </label>
-                          <Select value={selectedKeyStage} onValueChange={setSelectedKeyStage}>
-                            <SelectTrigger className={formErrors.keyStage ? "border-red-500" : ""}>
-                              <SelectValue placeholder="Select Key Stage/Class" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {keyStages.map((stage) => (
-                                <SelectItem key={stage.id} value={stage.id}>
-                                  {stage.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          {formErrors.keyStage && (
-                            <p className="text-red-500 text-sm mt-1">{formErrors.keyStage}</p>
-                          )}
-                        </div>
-
-                        <div>
-                          <label className="text-sm font-semibold text-slate-700 mb-3 block">
-                            Select Date
-                          </label>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="outline"
-                                className={cn(
-                                  "w-full justify-start text-left font-normal",
-                                  !date && "text-muted-foreground",
-                                  formErrors.date && "border-red-500"
-                                )}
-                              >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {date ? format(date, "PPP") : <span>Select Date</span>}
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar
-                                mode="single"
-                                selected={date}
-                                onSelect={setDate}
-                                initialFocus
-                                className="pointer-events-auto"
-                              />
-                            </PopoverContent>
-                          </Popover>
-                          {formErrors.date && (
-                            <p className="text-red-500 text-sm mt-1">{formErrors.date}</p>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Additional Observers Section */}
-                      {additionalObservers.length > 0 && (
-                        <div>
-                          <label className="text-sm font-semibold text-slate-700 mb-3 block">
-                            Additional Observers
-                          </label>
-                          <div className="space-y-2">
-                            {additionalObservers.map((observer, index) => (
-                              <div key={index} className="flex items-center gap-2">
-                                <Badge variant="outline" className="flex-1">
-                                  {observer || `Observer ${index + 1}`}
-                                </Badge>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => removeObserver(index)}
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="flex gap-4">
-                        <Button 
-                          className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300" 
-                          onClick={handleConfirmLearningWalk}
-                          disabled={loading}
-                        >
-                          {loading ? (
-                            <>
-                              <Clock className="mr-2 h-4 w-4 animate-spin" />
-                              Processing...
-                            </>
-                          ) : (
-                            'Confirm these options'
-                          )}
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          onClick={() => {
-                            setShowLearningWalkOptions(false);
-                            setIsFormExpanded(false);
-                            setSelectedObservationType("");
-                            setSelectedObservee("");
-                            setSelectedLearningAspect("");
-                            setSelectedSubject("");
-                            setSelectedKeyStage("");
-                            setFormErrors({});
-                          }}
-                          disabled={loading}
-                        >
-                          Cancel
-                        </Button>
+                        <h3 className="font-semibold text-slate-800">Recent Observations</h3>
+                        <p className="text-sm text-slate-600">View your latest feedback</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              )}
 
-              {/* Self Assessment Options */}
-              {showSelfAssessmentOptions && (
-                <Card className="w-full mt-6">
-                  <CardHeader className="bg-sps-green text-white">
-                    <CardTitle className="flex items-center gap-2">
-                      <Users className="h-5 w-5" />
-                      Self Assessment Configuration
-                    </CardTitle>
-                  </CardHeader>
+                <Card className="group hover:shadow-lg transition-all duration-300 border-0 shadow-md bg-white/80 backdrop-blur-sm">
                   <CardContent className="p-6">
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                          <label className="text-sm font-medium text-foreground mb-2 block">
-                            Observation Type
-                          </label>
-                          <Select value={selectedObservationType} disabled>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                          </Select>
-                        </div>
-
-                        <div>
-                          <label className="text-sm font-medium text-foreground mb-2 block">
-                            Teacher (You)
-                          </label>
-                          <Select value={selectedObservee} disabled>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                          </Select>
-                        </div>
-
-                        <div>
-                          <label className="text-sm font-medium text-foreground mb-2 block">
-                            Assessment Type
-                          </label>
-                          <Select>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Self Assessment" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="self-assessment">Self Assessment</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        {/* Key Stage/Class field removed for Senior School Self Assessment as it's not required */}
-                        {selectedObservationType !== "Senior School Self Assessment" && (
-                          <div>
-                            <label className="text-sm font-medium text-foreground mb-2 block">
-                              Key Stage/Class
-                            </label>
-                            <Select value={selectedKeyStage} onValueChange={setSelectedKeyStage}>
-                              <SelectTrigger className={formErrors.keyStage ? "border-red-500" : ""}>
-                                <SelectValue placeholder="Select key stage" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {keyStages.map((keyStage) => (
-                                  <SelectItem key={keyStage.id} value={keyStage.id}>
-                                    {keyStage.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            {formErrors.keyStage && (
-                              <p className="text-red-500 text-sm mt-1">{formErrors.keyStage}</p>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Subject field removed for Self Assessment as it's not required */}
+                    <div className="flex items-center gap-4">
+                      <div className="h-12 w-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <BookOpen className="h-6 w-6 text-white" />
                       </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                        <div>
-                          <label className="text-sm font-medium text-foreground mb-2 block">
-                            Select Date
-                          </label>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="outline"
-                                className={cn(
-                                  "w-full justify-start text-left font-normal",
-                                  !date && "text-muted-foreground",
-                                  formErrors.date && "border-red-500"
-                                )}
-                              >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {date ? format(date, "PPP") : <span>Select Date</span>}
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar
-                                mode="single"
-                                selected={date}
-                                onSelect={setDate}
-                                initialFocus
-                                className="pointer-events-auto"
-                              />
-                            </PopoverContent>
-                          </Popover>
-                          {formErrors.date && (
-                            <p className="text-red-500 text-sm mt-1">{formErrors.date}</p>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex gap-4">
-                        <Button 
-                          className="flex-1 bg-black text-white hover:bg-gray-800" 
-                          onClick={handleConfirmSelfAssessment}
-                        >
-                          Confirm these options
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          onClick={() => {
-                            setShowSelfAssessmentOptions(false);
-                            setIsFormExpanded(false);
-                            setSelectedObservationType("");
-                            setSelectedObservee("");
-                          }}
-                        >
-                          Cancel
-                        </Button>
+                      <div>
+                        <h3 className="font-semibold text-slate-800">Learning Resources</h3>
+                        <p className="text-sm text-slate-600">Access teaching materials</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              )}
+
+                <Card className="group hover:shadow-lg transition-all duration-300 border-0 shadow-md bg-white/80 backdrop-blur-sm">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="h-12 w-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <Target className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-slate-800">Development Goals</h3>
+                        <p className="text-sm text-slate-600">Track your progress</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
             <MrBishopFab />
           </div>
@@ -1164,5 +414,3 @@ const Dashboard = () => {
     </SidebarProvider>
   );
 };
-
-export default Dashboard;

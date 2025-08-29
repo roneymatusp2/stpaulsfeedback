@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Upload, Mic, MicOff, Image, FileText, Save, Trash2 } from "lucide-react";
 import { learningWalkApi, type LearningWalkAspect, type LearningWalkCriteria } from "@/lib/supabase";
+import { X } from "lucide-react";
 import { toast } from "sonner";
 
 export default function LearningWalk() {
