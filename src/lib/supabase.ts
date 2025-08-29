@@ -5,6 +5,30 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
+export type { User } from '@supabase/supabase-js';
+
+// Learning Walk Types
+export interface LearningWalkAspect {
+  id: string;
+  name: string;
+  description?: string;
+  order_index: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LearningWalkCriteria {
+  id: string;
+  aspect_id: string;
+  title: string;
+  description: string;
+  order_index: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 // Database types
 export interface Teacher {
   id: string
@@ -2802,3 +2826,51 @@ export const analyticsApi = {
     }
   }
 }
+
+// Learning Walk API functions
+export const learningWalkApi = {
+  getAspects: async (): Promise<LearningWalkAspect[]> => {
+    const { data, error } = await supabase
+      .from('learning_walk_aspects')
+      .select('*')
+      .eq('is_active', true)
+      .order('order_index');
+    
+    if (error) throw error;
+    return data || [];
+  },
+
+  getCriteriaForAspect: async (aspectId: string): Promise<LearningWalkCriteria[]> => {
+    const { data, error } = await supabase
+      .from('learning_walk_criteria')
+      .select('*')
+      .eq('aspect_id', aspectId)
+      .eq('is_active', true)
+      .order('order_index');
+    
+    if (error) throw error;
+    return data || [];
+  },
+
+  createAspect: async (aspect: Omit<LearningWalkAspect, 'id' | 'created_at' | 'updated_at'>): Promise<LearningWalkAspect> => {
+    const { data, error } = await supabase
+      .from('learning_walk_aspects')
+      .insert(aspect)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  createCriteria: async (criteria: Omit<LearningWalkCriteria, 'id' | 'created_at' | 'updated_at'>): Promise<LearningWalkCriteria> => {
+    const { data, error } = await supabase
+      .from('learning_walk_criteria')
+      .insert(criteria)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  }
+};

@@ -11,6 +11,7 @@ import Profile from "./pages/Profile";
 import Gallery from "./pages/Gallery";
 import Observations from "./pages/Observations";
 import SelfAssessment from "./pages/SelfAssessment";
+import LearningWalk from "./pages/LearningWalk";
 import BestPractices from "./pages/BestPractices";
 import AdminPanel from "./pages/AdminPanel";
 import NotFound from "./pages/NotFound";
@@ -54,6 +55,11 @@ const App = () => (
           <Route path="/dashboard/self-assessment" element={
             <ProtectedRoute>
               <SelfAssessment />
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard/learning-walk" element={
+            <ProtectedRoute>
+              <LearningWalk />
             </ProtectedRoute>
           } />
           <Route path="/dashboard/best-practices" element={

@@ -17,6 +17,16 @@ const SelfAssessmentManagement = () => {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingItem, setEditingItem] = useState<ObservationType | KeyStage | Subject | null>(null);
+  const loadCriteriaForAspect = async (aspectId: string) => {
+    try {
+      const criteria = await learningWalkApi.getCriteriaForAspect(aspectId);
+      setLearningWalkCriteria(criteria);
+    } catch (error) {
+      console.error('Error loading criteria:', error);
+      toast.error('Failed to load criteria');
+    }
+  };
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('observation-types');
 

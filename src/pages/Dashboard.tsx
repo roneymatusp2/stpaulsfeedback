@@ -236,10 +236,7 @@ const Dashboard = () => {
         
         localStorage.setItem('learningWalkConfig', JSON.stringify(learningWalkConfig));
         
-        toast.success('Learning Walk configuration saved successfully!');
-        
-        // For now, we'll navigate to observations page - later this can be a dedicated Learning Walk page
-        navigate('/dashboard/observations');
+        navigate('/dashboard/learning-walk');
       } catch (error) {
         console.error('Error saving learning walk configuration:', error);
         toast.error('Failed to save configuration. Please try again.');
