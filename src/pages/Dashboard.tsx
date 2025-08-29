@@ -42,6 +42,23 @@ const Dashboard = () => {
   const [selectedSubject, setSelectedSubject] = useState<string>("");
   const [formErrors, setFormErrors] = useState<{[key: string]: string}>({});
   
+  // Learning Walk specific states
+  const [showLearningWalkOptions, setShowLearningWalkOptions] = useState(false);
+  const [selectedLearningAspect, setSelectedLearningAspect] = useState<string>("");
+  
+  // Learning Walk aspects configuration
+  const learningWalkAspects = [
+    "Subject knowledge and subject pedagogies",
+    "Quality of instruction",
+    "Assessment for learning",
+    "Behaviour for learning and student attitude",
+    "Progress for all students",
+    "Literacy and Oracy",
+    "General",
+    "Metacognition and self-regulation",
+    "Deep Learning"
+  ];
+  
   // Auto-fill configuration for different observation types
   const observationTypeConfigs = {
     "Senior School Self Assessment": {
@@ -103,6 +120,8 @@ const Dashboard = () => {
       // For Senior School Self Assessment, automatically show the configuration section
       if (value === "Senior School Self Assessment") {
         setShowSelfAssessmentOptions(true);
+      } else if (value === "Senior School Learning Walk") {
+        setShowLearningWalkOptions(true);
       }
     }
     
@@ -141,6 +160,37 @@ const Dashboard = () => {
     return Object.keys(errors).length === 0;
   };
 
+  const validateLearningWalkForm = () => {
+    const errors: {[key: string]: string} = {};
+    
+    if (!selectedObservationType) {
+      errors.observationType = "Please select an observation type";
+    }
+    
+    if (!selectedObservee) {
+      errors.observee = "Please select a teacher";
+    }
+    
+    if (!selectedLearningAspect) {
+      errors.learningAspect = "Please select a learning aspect";
+    }
+    
+    if (!selectedSubject) {
+      errors.subject = "Please select a subject";
+    }
+    
+    if (!selectedKeyStage) {
+      errors.keyStage = "Please select a key stage";
+    }
+    
+    if (!date) {
+      errors.date = "Please select a date";
+    }
+    
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleConfirmSelfAssessment = () => {
     if (validateSelfAssessmentForm()) {
       try {
@@ -162,6 +212,36 @@ const Dashboard = () => {
         navigate('/dashboard/self-assessment');
       } catch (error) {
         console.error('Error saving self-assessment configuration:', error);
+        toast.error('Failed to save configuration. Please try again.');
+      }
+    } else {
+      toast.error('Please fill in all required fields');
+    }
+  };
+
+  const handleConfirmLearningWalk = () => {
+    if (validateLearningWalkForm()) {
+      try {
+        // Store the learning walk configuration in localStorage for the observation creation
+        const learningWalkConfig = {
+          observationType: selectedObservationType,
+          teacher: selectedObservee,
+          learningAspect: selectedLearningAspect,
+          subject: selectedSubject,
+          keyStage: selectedKeyStage,
+          date: date?.toISOString(),
+          additionalObservers: additionalObservers.filter(obs => obs.trim() !== ""),
+          timestamp: new Date().toISOString()
+        };
+        
+        localStorage.setItem('learningWalkConfig', JSON.stringify(learningWalkConfig));
+        
+        toast.success('Learning Walk configuration saved successfully!');
+        
+        // For now, we'll navigate to observations page - later this can be a dedicated Learning Walk page
+        navigate('/dashboard/observations');
+      } catch (error) {
+        console.error('Error saving learning walk configuration:', error);
         toast.error('Failed to save configuration. Please try again.');
       }
     } else {
@@ -697,6 +777,8 @@ const Dashboard = () => {
                           onClick={() => {
                             if (selectedObservationType === "Senior School Self Assessment") {
                               setShowSelfAssessmentOptions(true);
+                            } else if (selectedObservationType === "Senior School Learning Walk") {
+                              setShowLearningWalkOptions(true);
                             } else {
                               // Handle other observation types
                               console.log("Creating observation:", {
@@ -714,6 +796,205 @@ const Dashboard = () => {
                           size="lg"
                           className="border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
                           onClick={() => setIsFormExpanded(false)}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Learning Walk Options */}
+              {showLearningWalkOptions && (
+                <Card className="w-full mt-6">
+                  <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+                    <CardTitle className="flex items-center gap-2">
+                      <Eye className="h-5 w-5" />
+                      Learning Walk Configuration
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="space-y-6">
+                      {/* Learning Aspect Selection */}
+                      <div>
+                        <label className="text-sm font-semibold text-slate-700 mb-3 block">
+                          Choose Learning Aspect
+                        </label>
+                        <Select value={selectedLearningAspect} onValueChange={setSelectedLearningAspect}>
+                          <SelectTrigger className={formErrors.learningAspect ? "border-red-500" : ""}>
+                            <SelectValue placeholder="Choose Learning Aspect" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {learningWalkAspects.map((aspect) => (
+                              <SelectItem key={aspect} value={aspect}>
+                                {aspect}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {formErrors.learningAspect && (
+                          <p className="text-red-500 text-sm mt-1">{formErrors.learningAspect}</p>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="text-sm font-semibold text-slate-700 mb-3 block">
+                            Observation Type
+                          </label>
+                          <Select value={selectedObservationType} disabled>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </Select>
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-semibold text-slate-700 mb-3 block">
+                            Teacher
+                          </label>
+                          <Select value={selectedObservee} disabled>
+                            <SelectTrigger className={formErrors.observee ? "border-red-500" : ""}>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </Select>
+                          {formErrors.observee && (
+                            <p className="text-red-500 text-sm mt-1">{formErrors.observee}</p>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-semibold text-slate-700 mb-3 block">
+                            Subject
+                          </label>
+                          <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+                            <SelectTrigger className={formErrors.subject ? "border-red-500" : ""}>
+                              <SelectValue placeholder="Select Subject" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {subjects.map((subject) => (
+                                <SelectItem key={subject.id} value={subject.name}>
+                                  {subject.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {formErrors.subject && (
+                            <p className="text-red-500 text-sm mt-1">{formErrors.subject}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-sm font-semibold text-slate-700 mb-3 block">
+                            Key Stage/Class
+                          </label>
+                          <Select value={selectedKeyStage} onValueChange={setSelectedKeyStage}>
+                            <SelectTrigger className={formErrors.keyStage ? "border-red-500" : ""}>
+                              <SelectValue placeholder="Select Key Stage/Class" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {keyStages.map((stage) => (
+                                <SelectItem key={stage.id} value={stage.id}>
+                                  {stage.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {formErrors.keyStage && (
+                            <p className="text-red-500 text-sm mt-1">{formErrors.keyStage}</p>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-semibold text-slate-700 mb-3 block">
+                            Select Date
+                          </label>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                className={cn(
+                                  "w-full justify-start text-left font-normal",
+                                  !date && "text-muted-foreground",
+                                  formErrors.date && "border-red-500"
+                                )}
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {date ? format(date, "PPP") : <span>Select Date</span>}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={date}
+                                onSelect={setDate}
+                                initialFocus
+                                className="pointer-events-auto"
+                              />
+                            </PopoverContent>
+                          </Popover>
+                          {formErrors.date && (
+                            <p className="text-red-500 text-sm mt-1">{formErrors.date}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Additional Observers Section */}
+                      {additionalObservers.length > 0 && (
+                        <div>
+                          <label className="text-sm font-semibold text-slate-700 mb-3 block">
+                            Additional Observers
+                          </label>
+                          <div className="space-y-2">
+                            {additionalObservers.map((observer, index) => (
+                              <div key={index} className="flex items-center gap-2">
+                                <Badge variant="outline" className="flex-1">
+                                  {observer || `Observer ${index + 1}`}
+                                </Badge>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => removeObserver(index)}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex gap-4">
+                        <Button 
+                          className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300" 
+                          onClick={handleConfirmLearningWalk}
+                          disabled={loading}
+                        >
+                          {loading ? (
+                            <>
+                              <Clock className="mr-2 h-4 w-4 animate-spin" />
+                              Processing...
+                            </>
+                          ) : (
+                            'Confirm these options'
+                          )}
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          onClick={() => {
+                            setShowLearningWalkOptions(false);
+                            setIsFormExpanded(false);
+                            setSelectedObservationType("");
+                            setSelectedObservee("");
+                            setSelectedLearningAspect("");
+                            setSelectedSubject("");
+                            setSelectedKeyStage("");
+                            setFormErrors({});
+                          }}
+                          disabled={loading}
                         >
                           Cancel
                         </Button>
