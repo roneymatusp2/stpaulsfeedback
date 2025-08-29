@@ -560,7 +560,7 @@ const Dashboard = () => {
                         </div>
                       ))}
 
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className={`grid gap-6 ${selectedObservationType === "Senior School Learning Walk" ? "grid-cols-1 md:grid-cols-4" : "grid-cols-1 md:grid-cols-3"}`}>
                         <div className="space-y-2">
                           <label className="text-sm font-semibold text-slate-700 mb-3 block">
                             Observation Type
@@ -713,6 +713,27 @@ const Dashboard = () => {
                             {formErrors.subject && (
                               <p className="text-red-500 text-sm mt-1">{formErrors.subject}</p>
                             )}
+                          </div>
+                        )}
+
+                        {/* Choose Learning Aspect - only for Learning Walk */}
+                        {selectedObservationType === "Senior School Learning Walk" && (
+                          <div className="space-y-2">
+                            <label className="text-sm font-semibold text-slate-700 mb-3 block">
+                              Choose Learning Aspect
+                            </label>
+                            <Select value={selectedLearningAspect} onValueChange={setSelectedLearningAspect}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Choose Learning Aspect" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {learningWalkAspects.map((aspect) => (
+                                  <SelectItem key={aspect} value={aspect}>
+                                    {aspect}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </div>
                         )}
                       </div>
