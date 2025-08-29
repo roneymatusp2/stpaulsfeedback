@@ -2874,3 +2874,103 @@ export const learningWalkApi = {
     return data;
   }
 };
+
+// Learning Walk APIs
+export interface LearningWalkAspect {
+  id: string;
+  name: string;
+  description: string | null;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface LearningWalkCriteria {
+  id: string;
+  aspect_id: string;
+  title: string;
+  description: string;
+  order_index: number;
+  created_at: string;
+}
+
+export const learningWalkApi = {
+  getAspects: async (): Promise<LearningWalkAspect[]> => {
+    const { data, error } = await supabase
+      .from('learning_walk_aspects')
+      .select('*')
+      .eq('is_active', true)
+      .order('name');
+    
+    if (error) throw error;
+    return data || [];
+  },
+
+  getCriteriaForAspect: async (aspectId: string): Promise<LearningWalkCriteria[]> => {
+    const { data, error } = await supabase
+      .from('learning_walk_criteria')
+      .select('*')
+      .eq('aspect_id', aspectId)
+      .order('order_index');
+    
+    if (error) throw error;
+    return data || [];
+  },
+
+  createAspect: async (aspect: Omit<LearningWalkAspect, 'id' | 'created_at'>): Promise<LearningWalkAspect> => {
+    const { data, error } = await supabase
+      .from('learning_walk_aspects')
+      .insert(aspect)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  updateAspect: async (id: string, updates: Partial<LearningWalkAspect>): Promise<void> => {
+    const { error } = await supabase
+      .from('learning_walk_aspects')
+      .update(updates)
+      .eq('id', id);
+    
+    if (error) throw error;
+  },
+
+  deleteAspect: async (id: string): Promise<void> => {
+    const { error } = await supabase
+      .from('learning_walk_aspects')
+      .update({ is_active: false })
+      .eq('id', id);
+    
+    if (error) throw error;
+  },
+
+  createCriteria: async (criteria: Omit<LearningWalkCriteria, 'id' | 'created_at'>): Promise<LearningWalkCriteria> => {
+    const { data, error } = await supabase
+      .from('learning_walk_criteria')
+      .insert(criteria)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  updateCriteria: async (id: string, updates: Partial<LearningWalkCriteria>): Promise<void> => {
+    const { error } = await supabase
+      .from('learning_walk_criteria')
+      .update(updates)
+      .eq('id', id);
+    
+    if (error) throw error;
+  },
+
+  deleteCriteria: async (id: string): Promise<void> => {
+    const { error } = await supabase
+      .from('learning_walk_criteria')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+  }
+};
