@@ -17,18 +17,11 @@ const SelfAssessmentManagement = () => {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingItem, setEditingItem] = useState<ObservationType | KeyStage | Subject | null>(null);
-  const loadCriteriaForAspect = async (aspectId: string) => {
-    try {
-      const criteria = await learningWalkApi.getCriteriaForAspect(aspectId);
-      setLearningWalkCriteria(criteria);
-    } catch (error) {
-      console.error('Error loading criteria:', error);
-      toast.error('Failed to load criteria');
-    }
-  };
-
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('observation-types');
+  const [learningWalkAspects, setLearningWalkAspects] = useState([]);
+  const [learningWalkCriteria, setLearningWalkCriteria] = useState([]);
+  const [selectedAspectId, setSelectedAspectId] = useState(null);
 
   // Form states
   const [formData, setFormData] = useState({ name: '', description: '' });
@@ -54,6 +47,10 @@ const SelfAssessmentManagement = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadCriteriaForAspect = (aspectId) => {
+    // Implementation for loading criteria
   };
 
   const handleCreate = async (type: 'observation-types' | 'key-stages' | 'subjects') => {
@@ -237,10 +234,11 @@ const SelfAssessmentManagement = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="observation-types">Observation Types</TabsTrigger>
           <TabsTrigger value="key-stages">Key Stages</TabsTrigger>
           <TabsTrigger value="subjects">Subjects</TabsTrigger>
+          <TabsTrigger value="learning-walk">Learning Walk</TabsTrigger>
         </TabsList>
         
         <TabsContent value="observation-types" className="mt-6">
@@ -253,6 +251,79 @@ const SelfAssessmentManagement = () => {
         
         <TabsContent value="subjects" className="mt-6">
           {renderItemsList(subjects, 'subjects', BookOpen)}
+        </TabsContent>
+        
+        <TabsContent value="learning-walk" className="mt-6">
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Target className="h-5 w-5" />
+                Learning Walk Management
+              </h3>
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Aspects */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-medium">Learning Aspects</h4>
+                  <Button size="sm" variant="outline">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Aspect
+                  </Button>
+                </div>
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {learningWalkAspects.map((aspect) => (
+                    <div 
+                      key={aspect.id}
+                      className={`p-3 border rounded cursor-pointer transition-colors ${
+                        selectedAspectId === aspect.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'
+                      }`}
+                      onClick={() => {
+                        setSelectedAspectId(aspect.id);
+                        loadCriteriaForAspect(aspect.id);
+                      }}
+                    >
+                      <div className="font-medium text-sm">{aspect.name}</div>
+                      {aspect.description && (
+                        <div className="text-xs text-muted-foreground mt-1">{aspect.description}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Criteria for Selected Aspect */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-medium">
+                    Criteria {selectedAspectId && `(${learningWalkCriteria.length})`}
+                  </h4>
+                  {selectedAspectId && (
+                    <Button size="sm" variant="outline">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Criteria
+                    </Button>
+                  )}
+                </div>
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {selectedAspectId ? (
+                    learningWalkCriteria.map((criteria) => (
+                      <div key={criteria.id} className="p-3 border border-gray-200 rounded">
+                        <div className="font-medium text-sm">{criteria.title}</div>
+                        <div className="text-xs text-muted-foreground mt-1">{criteria.description}</div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Target className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Select an aspect to view its criteria</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
 
