@@ -187,6 +187,35 @@ const AdminPanel = () => {
     );
   }
 
+  // Render Teacher Management view
+  if (activeView === 'teacher-management') {
+    return (
+      <SidebarProvider>
+        <div className="min-h-screen flex w-full bg-background">
+          <AppSidebar />
+          <main className="flex-1 flex flex-col">
+            <DashboardHeader />
+            <div className="flex-1 p-6 space-y-6">
+              <div className="max-w-7xl mx-auto">
+                <div className="mb-6">
+                  <Button
+                    variant="outline"
+                    onClick={() => setActiveView(null)}
+                    className="mb-4"
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to Admin Panel
+                  </Button>
+                </div>
+                <TeacherManagement />
+              </div>
+            </div>
+          </main>
+        </div>
+      </SidebarProvider>
+    );
+  }
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">

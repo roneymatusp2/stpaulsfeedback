@@ -2827,6 +2827,65 @@ export const analyticsApi = {
   }
 }
 
+// Teacher Management API
+export const teachersApi = {
+  async getAll(): Promise<Teacher[]> {
+    const { data, error } = await supabase
+      .from('teachers')
+      .select('*')
+      .order('name');
+    
+    if (error) throw error;
+    return data || [];
+  },
+
+  async getByEmail(email: string): Promise<Teacher | null> {
+    const { data, error } = await supabase
+      .from('teachers')
+      .select('*')
+      .eq('email', email)
+      .single();
+    
+    if (error) {
+      if (error.code === 'PGRST116') return null; // No rows returned
+      throw error;
+    }
+    return data;
+  },
+
+  async create(teacher: Partial<Teacher>): Promise<Teacher> {
+    const { data, error } = await supabase
+      .from('teachers')
+      .insert([teacher])
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async update(id: string, updates: Partial<Teacher>): Promise<Teacher> {
+    const { data, error } = await supabase
+      .from('teachers')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async delete(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('teachers')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+  }
+};
+
 // Learning Walk API functions
 export const learningWalkApi = {
   getAspects: async (): Promise<LearningWalkAspect[]> => {
