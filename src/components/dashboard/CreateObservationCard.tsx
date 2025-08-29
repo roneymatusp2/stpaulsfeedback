@@ -56,22 +56,26 @@ export function CreateObservationCard() {
   }, []);
 
   const handleCreateObservation = () => {
+    if (!observationType || !teacher) {
+      return;
+    }
+    
     const config = {
       observationType,
       teacher: { 
         value: teacher,
-        name: teachers.find(t => t.id === teacher)?.name || teacher 
+        name: teachers.find(t => t.id === teacher)?.name || ''
       },
       subject: {
         value: subject,
-        name: subjects.find(s => s.id === subject)?.name || subject
+        name: subjects.find(s => s.id === subject)?.name || ''
       },
       keyStage,
       date: date?.toISOString(),
       ...(observationType === "Senior School Learning Walk" && { 
         learningAspect: {
           value: learningAspect,
-          name: learningAspects.find(a => a.id === learningAspect)?.name || learningAspect
+          name: learningAspects.find(a => a.id === learningAspect)?.name || ''
         }
       })
     };

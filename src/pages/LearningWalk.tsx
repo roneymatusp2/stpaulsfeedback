@@ -131,6 +131,11 @@ export default function LearningWalk() {
     }
   };
 
+  const handleDiscard = () => {
+    localStorage.removeItem('learningWalkConfig');
+    navigate('/dashboard');
+  };
+
   const handleSave = (isDraft: boolean = false) => {
     if (!isDraft && !notes.trim()) {
       toast.error('You must add at least one note before publishing');
@@ -162,10 +167,6 @@ export default function LearningWalk() {
     navigate('/dashboard');
   };
 
-  const handleDiscard = () => {
-    localStorage.removeItem('learningWalkConfig');
-    navigate('/dashboard');
-  };
 
   if (loading) {
     return (
